@@ -11,7 +11,7 @@ def check(required_packages):
         try:
             importlib.import_module(package)
         except ImportError:
-            missing_packages.append(package)
+            missing_packages.append(required_packages[package])
 
     if missing_packages:
         message = "Les librairies Python suivantes sont requises pour utiliser le plugin OutilsExtractions:\n\n"

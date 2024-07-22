@@ -39,6 +39,7 @@ from .Codes_interfaces.Extraction_couches_WFS_interface import ExtractionCouches
 from .Codes_interfaces.Extraction_reseaux_secs_interface import ExtractionReseaux
 from .Codes_interfaces.Metre_espace_travail_interface import Metre
 from .Codes_interfaces.Preextraction_cadastre_interface import PreextractionCadastre
+from .Codes_interfaces.extraction_IGN import Faisabilite
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -65,7 +66,7 @@ du projet sans avoir à stocker de couche en local et sans ralentir QGIS""")
 
         self.extraction_reseaux_label = QLabel("""Ce code sert à extraire les réseaux disponibles dans la base de données
 par l'emprise du projet. Il crée aussi un script d'import Mensura qui peut 
-être utilisé pour importer automatiquement les résultats.
+être utilisé pour importer automatiquement les résultats. 
 D'autres types de réseaux peuvent être rajoutés dans la base de données au format .shp""")
         self.extraction_reseaux_button = QPushButton("Extraction Reseaux")
         self.extraction_reseaux_button.setFixedSize(200, 35)
@@ -91,9 +92,15 @@ de coordonnées bien qu’il faille passer par le Lambert 93 impérativement. ""
         self.topologie_IGN_button.setFixedSize(200, 35)
         self.topologie_IGN_button.clicked.connect(Topologie)
 
+        self.Faisabilite_label = QLabel(""" Cette fonction permet d'extraire les vues cartographiques des différents éléments
+nécessaires à l'étude d'un périmètre donné. Le but est de fournir un état initial 
+pour l'étude de faisabilité. """)
+        self.Faisabilite_button = QPushButton("État Initial - Faisabilite")
+        self.Faisabilite_button.setFixedSize(200, 35)
+        self.Faisabilite_button.clicked.connect(Faisabilite)
+
         self.buttons = QDialogButtonBox(QDialogButtonBox.Close)
         self.buttons.rejected.connect(self.reject)
-
 
         self.resize(350, 400)
         layout.addWidget(self.extraction_cadastres_label)
@@ -119,6 +126,11 @@ de coordonnées bien qu’il faille passer par le Lambert 93 impérativement. ""
         layout.addWidget(self.topologie_IGN_label)
         layout.addSpacing(10)
         layout.addWidget(self.topologie_IGN_button)
+
+        layout.addSpacing(20)
+        layout.addWidget(self.Faisabilite_label)
+        layout.addSpacing(10)
+        layout.addWidget(self.Faisabilite_button)
 
         layout.addStretch(1)
         layout.addWidget(self.buttons)

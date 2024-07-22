@@ -109,7 +109,7 @@ class ParametresDialog(QDialog):
         layout.addWidget(self.epsg_cible_label)
         layout.addWidget(self.epsg_cible_edit)
         
-        self.rayon_ajoute_label = QLabel("Rayon Ajouté : ")
+        self.rayon_ajoute_label = QLabel("Rayon Ajouté (en m) : ")
         self.rayon_ajoute_edit = QLineEdit()
         layout.addWidget(self.rayon_ajoute_label)
         layout.addWidget(self.rayon_ajoute_edit)

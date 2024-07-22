@@ -93,26 +93,21 @@ class ParametresDialog(QDialog):
         self.layout.addWidget(self.nom_emprise_label)
         self.layout.addWidget(self.nom_emprise_edit)
 
-        self.nom_parcelles_label = QLabel("Rentrez le nom de la couche de parcelles (ou autre couche de découpe) qui est chargée dans le projet : ")
+        self.nom_parcelles_label = QLabel("Rentrez le nom de la couche de parcelles chargée dans le projet : ")
         self.nom_parcelles_edit = QLineEdit()
         self.layout.addWidget(self.nom_parcelles_label)
         self.layout.addWidget(self.nom_parcelles_edit)
 
-        self.utilisation_parcelles_label = QLabel("""
-Utilisation_parcelles choisit le mode d'utilisation du script
-Mettre à 0 si c'est une couche de découpe qui ne possède pas d'attribut pour identifier les parcelles 
-qui découpent.
-Mettre à 1 si les couches ont identifiants renseignés dans "identification_champ"
-Mettre à 2 si vous voulez lier une couche shapefile avec un fichier csv qui sera renseigné dans la suite:""")
+        self.utilisation_parcelles_label = QLabel("""Choix du mode d'utilisation du script""")
         self.layout.addWidget(self.utilisation_parcelles_label)
         self.utilisation_parcelles = None
 
         self.utilisation_parcelles_group = QButtonGroup(self)
         self.utilisation_parcelles_group.setExclusive(True)  # Only one checkbox can be checked at a time
 
-        self.utilisation_parcelles_checkbox_0 = QCheckBox("0")
-        self.utilisation_parcelles_checkbox_1 = QCheckBox("1")
-        self.utilisation_parcelles_checkbox_2 = QCheckBox("2")
+        self.utilisation_parcelles_checkbox_0 = QCheckBox("Pas d'identifiant pour les parcelles")
+        self.utilisation_parcelles_checkbox_1 = QCheckBox("Identifier les parcelles avec un id donné par QGIS")
+        self.utilisation_parcelles_checkbox_2 = QCheckBox("Identifier les parcelles et lier la couche shp avec un fichier csv")
 
         self.utilisation_parcelles_group.addButton(self.utilisation_parcelles_checkbox_0)
         self.utilisation_parcelles_group.addButton(self.utilisation_parcelles_checkbox_1)
@@ -131,12 +126,14 @@ Mettre à 2 si vous voulez lier une couche shapefile avec un fichier csv qui ser
         self.layout.addWidget(self.utilisation_parcelles_checkbox_2)
         
         
-        self.identification_champ_label = QLabel("Champ de la table d'attributs contenant l'\"adresse\" unique de la parcelle en shp  : ")
+        self.identification_champ_label = QLabel("Titre de la colonne de la table d'attributs contenant l'identifiant unique de chaque parcelle : ")
         self.identification_champ_edit = QLineEdit()
         self.layout.addWidget(self.identification_champ_label)
         self.layout.addWidget(self.identification_champ_edit)
 
-        self.chemin_csv_label = QLabel("Chemin vers la table du fichier csv qui sera relié à la couche shapefile : ")
+        self.chemin_csv_label = QLabel("""Chemin vers la table du fichier csv qui sera relié à la couche shapefile : 
+Le fichier 'parcelles_morales.csv' est la table construite par défaut contenant plusiuers informations
+sur l'ensemble des parcelles du territoire.""")
         self.chemin_csv_button = QPushButton("Sélectionner un fichier")
         self.chemin_csv_button.setFixedSize(170, 25)
         self.chemin_csv_edit = DroppableLineEdit()
@@ -391,12 +388,12 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
     
         
     reply = QMessageBox()
-    reply.setText("""Attention, le script fonctionne avec toutes les couches dans l'interface
-                   Avez-vous nettoyé les couches inutiles ?
-                   Avec-vous vérifié le nom des couches pour qu'elles soient cohérentes
-                   avec les paramètres du script ?
-                   Appuyer sur 'Non' empêchera l'exécution du script pour vous permettre
-                   de faire le nettoyage. Relancez le script après.""")
+    reply.setText("""Attention, le script fonctionne avec toutes les couches dans l'interface 
+Avez-vous nettoyé les couches inutiles ? 
+Avec-vous vérifié le nom des couches pour qu'elles soient cohérentes 
+avec les paramètres du script ? 
+Appuyer sur 'Non' empêchera l'exécution du script pour vous permettre
+de faire le nettoyage. Relancez le script après.""")
     reply.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
     reply.setDefaultButton(QMessageBox.No)
     x = reply.exec_()
@@ -407,7 +404,7 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
     if not QgsProject.instance().mapLayersByName(nom_parcelles):
         myDlg = MyDialog()
         myDlg.message="""Le nom du paramètres de couche de parcelles est mal renseigné et ne se trouve pas dans le projet.
-                         Vérifiez la valeur de la variable."""
+Vérifiez la valeur de la variable."""
         myDlg.show()
         myDlg.run()
         return 
@@ -415,9 +412,9 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
     #Si le projet est mal défini, message d'erreur et arrêt du script
     if not QgsProject.instance().mapLayersByName(nom_emprise):
         myDlg = MyDialog()
-        myDlg.message="""Le nom du paramètres de couche d'emprise est mal renseigné
-                         et ne se trouve pas dans le projet.
-                         Vérifiez la valeur de la variable."""
+        myDlg.message="""Le nom du paramètres de couche d'emprise est mal renseigné 
+et ne se trouve pas dans le projet. 
+Vérifiez la valeur de la variable."""
         myDlg.show()
         myDlg.run()
         return 
@@ -433,10 +430,10 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
     else :
         reply = QMessageBox()
         reply.setText("""Dossier résultat déjà existant.
-                         Pour ne pas mélanger les couches, il faut un dossier vierge.
-                         Le dossier va donc être vidé.
-                         Si vous voulez d'abord sauvegarder le contenu actuel, appuyez sur 'Non'.
-                         Puis relancez le script.""")
+Pour ne pas mélanger les couches, il faut un dossier vierge. 
+Le dossier va donc être vidé.
+Si vous voulez d'abord sauvegarder le contenu actuel, appuyez sur 'Non'.
+Puis relancez le script.""")
         reply.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         reply.setDefaultButton(QMessageBox.No)
         x = reply.exec_()
@@ -452,7 +449,7 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
     if (utilisation_parcelles == 1) and (identification_champ not in champ_couche_parcelle):
         myDlg = MyDialog()
         myDlg.message="""Le champ %s ne se trouve pas dans les champs d'attribut de la couche choisie pour le découpage.
-                         Choisir un champ existant dans la table d'attributs ou le créer, puis relancer le script"""%(identification_champ)
+Choisir un champ existant dans la table d'attributs ou le créer, puis relancer le script"""%(identification_champ)
         myDlg.show()
         myDlg.run()
 
@@ -460,12 +457,12 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
         or (champ_a_lier_shp not in champ_couche_parcelle)):
         print(champ_couche_parcelle)
         if identification_champ not in champ_couche_parcelle:
-            erreur=identification_champ
+            erreur = identification_champ
         else:
             erreur = champ_a_lier_shp
         myDlg = MyDialog()
         myDlg.message="""Le champ %s ne se trouve pas dans les champs d'attribut de la couche choisie pour le découpage.
-                         Choisir un champ existant dans la table d'attributs ou le créer, puis relancer le script"""%(erreur)
+Choisir un champ existant dans la table d'attributs ou le créer, puis relancer le script"""%(erreur)
         myDlg.show()
         myDlg.run()
         return 
@@ -476,7 +473,7 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
         or (chemin_csv[-3:]!="csv")):
         myDlg = MyDialog()
         myDlg.message="""Le fichier csv est soit mal renseigné (inexistant ou avec une erreur dans le chemin d'accès, soit il n'est pas au format csv.
-                         Vérifiez le chemin d'accès ou convertissez le au format csv."""
+Vérifiez le chemin d'accès ou convertissez le au format csv."""
         myDlg.show()
         myDlg.run()
         return 
@@ -491,7 +488,7 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
         if (champ_a_lier_csv not in liste_verif_csv) :
                     myDlg = MyDialog()
                     myDlg.message="""Le champ %s ne se trouve pas dans les champs du fichier csv.
-                         Changer la table csv à lire ou modifier le nom du champ, puis relancer le script"""%(champ_a_lier_csv)
+Changer la table csv à lire ou modifier le nom du champ, puis relancer le script"""%(champ_a_lier_csv)
                     myDlg.show()
                     myDlg.run()
                     return 
@@ -500,7 +497,7 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
                 if champ not in liste_verif_csv:
                     myDlg = MyDialog()
                     myDlg.message="""Le champ %s ne se trouve pas dans les champs du fichier csv.
-                         Changer la table csv à lire ou modifier le nom du champ, puis relancer le script"""%(champ)
+Changer la table csv à lire ou modifier le nom du champ, puis relancer le script"""%(champ)
                     myDlg.show()
                     myDlg.run()
                     return 
@@ -511,8 +508,8 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
     if nombre_emp > 1 :
         myDlg = MyDialog()
         myDlg.message="""Emprises non reliées, attention à la gestion des chiffrages. 
-        Pour l'instant un seul polygone par chiffrage est prévu, 
-        la concaténation de résultat peut éventuellement se faire à la main."""
+Pour l'instant un seul polygone par chiffrage est prévu, 
+la concaténation de résultat peut éventuellement se faire à la main."""
         myDlg.show()
         myDlg.run()
         return 
@@ -528,31 +525,35 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
     nombre_extrait_pub=dict()
 
     #Ouverture du fichier récapitulatif qui contiendra les mesures
-    recap = open(path_resultats + "\\Recap.csv","w",encoding="utf-8")
-    recap.write(("Emprise projet;Périmètre;Aire \n"))
+    recap = open(os.path.join(path_resultats, "Recap.csv"),"w",encoding="utf-8")
+    recap.write(("Emprise projet;Perimetre;Aire total \n"))
 
     #Boucle sur les emprises
-    for emp in emprise.getFeatures(): 
-        area_calc = QgsDistanceArea()
-        if emprise.crs().isGeographic()==True:
-          area_calc.setEllipsoid('WGS84') #Peut-être une approximation pour l'ellipsoide mais fera le boulot en faisabilité
+
+    # Initialiser la distance et la surface
+    area_calc = QgsDistanceArea()
+
+    # Vérifier si le CRS est géographique 
+    if emprise.crs().isGeographic():
+        area_calc.setEllipsoid('WGS84')  # Approximation pour l'ellipsoïde mais suffisante en faisabilité
         area_calc.willUseEllipsoid()
-        area = area_calc.measureArea(emp.geometry())
+
+    # Parcourir les entités de l'emprise
+    for emp in emprise.getFeatures(): 
+        geom = emp.geometry()
+        perimetre_total = area_calc.measureLength(geom)
+        aire_total = area_calc.measureArea(geom)
         id = emp.id()
-        perimetre_total = area_calc.measureLength(emp.geometry())
-        aire_total = area_calc.measureArea(emp.geometry())
-        recap.write("%d;%f;%f\n"%(id+1,perimetre_total,aire_total))#On écrit dans le fichier récapitulatif
+        recap.write("%d;%f;%f\n" % (id + 1, perimetre_total, aire_total))
         
     recap.write("\n")
-    recap.write("Fichiers;Somme_aire;Somme_longueur;Unites\n")
+    recap.write("Couche shp;Somme_aire;Somme_longueur;Nombre d'entites\n")
     recap.close()
 
     couches = QgsProject.instance().mapLayers()
     for couche_id, couche in couches.items():
         if couche.name()!=nom_emprise and couche.type()==QgsMapLayer.VectorLayer:
             input=couche
-            print (couche.type())
-            print(couche)
             if couche.name().find(":") != (-1):
                 couche_name=str(couche.name()).split(":")[1]+"_decoupe"
             else:
@@ -602,7 +603,7 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
                         att_long = {code_attribut_longueur:longueur}
                         ajout_donnees.changeAttributeValues({id:att_long})
                     result.commitChanges()
-                    recap = open(path_resultats +"\\Recap.csv","a",encoding="utf-8")
+                    recap = open(os.path.join(path_resultats, "Recap.csv"),"a",encoding="utf-8")
                     recap.write("%s;%f;%f;%f\n"%(couche_name,\
                                                 somme_aire[couche_name],\
                                                 somme_longueur[couche_name],\
@@ -624,13 +625,13 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
     #Nom  du fichier ouvert pour lisibilité, on écrit dans le même fichier
     recap_parc = open(os.path.join(path_resultats,"Recap_parcelle.csv"),"a",encoding="utf-8")
     recap_parc.write("\n")
-    recap_parc.write("Décomposition par parcelles \n")
-    recap_parc.write("Parcelle;")
+    recap_parc.write("Decomposition par parcelles \n")
+    recap_parc.write("ID Parcelle;")
     if utilisation_parcelles>=2:
         recap_parc.write(champ_a_lier_shp+";")
         for i in liste_param_souhaite_csv:
             recap_parc.write(i+";")
-    recap_parc.write("Aire_Parcelle;")
+    recap_parc.write("Aire Parcelle;")
     liste_name=list(set_name)
     liste_name.sort()
     for name in liste_name:
@@ -643,8 +644,8 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
     if(QgsProject.instance().mapLayersByName(nom_parcelles+"_decoupe")==[]):
         myDlg = MyDialog()
         myDlg.message="""L'emprise n'est pas superposée aux couches à métrer. 
-        Le script ne peut donc rien découper selon l'emprise. Vérifiez vos systèmes de coordonnées.
-        Du projet, et des couches."""
+Le script ne peut donc rien découper selon l'emprise. Vérifiez vos systèmes de coordonnées.
+Du projet, et des couches."""
         myDlg.show()
         myDlg.run()
         recap_parc.close()
@@ -725,10 +726,11 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
             if (dossier_concat[-3:]=="shp" or dossier_concat[-3:]=="SHP") and (i.split("_decoupe")[0]!=nom_parcelles):
                 input=dossier_concat
                 result=processing.run("qgis:clip",{"INPUT":input,"OVERLAY":parcelle_temp_file,"OUTPUT":"TEMPORARY_OUTPUT"})["OUTPUT"]
-                nombre_extrait_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]= result.featureCount()
-                if nombre_extrait_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]:
-                    somme_aire_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]=0
-                    somme_longueur_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]=0
+                nom_couche_extrait = "%s"%(i[:-4])
+                nombre_extrait_parc["%s"%(parcelle_id)][nom_couche_extrait]= result.featureCount()
+                if nombre_extrait_parc["%s"%(parcelle_id)][nom_couche_extrait]:
+                    somme_aire_parc["%s"%(parcelle_id)][nom_couche_extrait]=0
+                    somme_longueur_parc["%s"%(parcelle_id)][nom_couche_extrait]=0
                     ajout_donnees = result.dataProvider()
                     code_attribut_aire = len(result.fields())
                     ajout_donnees.addAttributes([QgsField("Aire",QVariant.Double)])
@@ -745,24 +747,24 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
                         dist_calc.willUseEllipsoid()
                         aire = dist_calc.measureArea(f.geometry())
                         longueur = dist_calc.measureLength(f.geometry())
-                        somme_aire_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]+=aire
+                        somme_aire_parc["%s"%(parcelle_id)][nom_couche_extrait]+=aire
                         attribut_aire = {code_attribut_aire:aire}
                         #ajout_donnees.changeAttributeValues({id:attribut_aire})
-                        somme_longueur_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]+=longueur
+                        somme_longueur_parc["%s"%(parcelle_id)][nom_couche_extrait]+=longueur
                         att_long = {code_attribut_longueur:longueur}
                         #ajout_donnees.changeAttributeValues({id:att_long})
                         result.commitChanges()
                     #Pour le public on somme le privé temporairement dans la variable
                     #Une fois toutes les parcelles parcourues on fera emprise-somme des parcelles
-                    nombre_extrait_pub["%s"%(i[:-4])]+=nombre_extrait_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]
-                    somme_longueur_pub["%s"%(i[:-4])]+=somme_longueur_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]
-                    somme_aire_pub["%s"%(i[:-4])]+=somme_aire_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]
-                    if somme_aire_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]<=0 and somme_longueur_parc["%s"%(parcelle_id)]["%s"%(i[:-4])] <=0:
-                        recap_parc.write("%f;"%(nombre_extrait_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]))
-                    elif somme_aire_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]<=0:
-                        recap_parc.write("%f;"%(somme_longueur_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]))
+                    nombre_extrait_pub[nom_couche_extrait]+=nombre_extrait_parc["%s"%(parcelle_id)][nom_couche_extrait]
+                    somme_longueur_pub[nom_couche_extrait]+=somme_longueur_parc["%s"%(parcelle_id)][nom_couche_extrait]
+                    somme_aire_pub[nom_couche_extrait]+=somme_aire_parc["%s"%(parcelle_id)][nom_couche_extrait]
+                    if somme_aire_parc["%s"%(parcelle_id)][nom_couche_extrait]<=0 and somme_longueur_parc["%s"%(parcelle_id)][nom_couche_extrait] <=0:
+                        recap_parc.write("%f;"%(nombre_extrait_parc["%s"%(parcelle_id)][nom_couche_extrait]))
+                    elif somme_aire_parc["%s"%(parcelle_id)][nom_couche_extrait]<=0:
+                        recap_parc.write("%f;"%(somme_longueur_parc["%s"%(parcelle_id)][nom_couche_extrait]))
                     else:
-                        recap_parc.write("%f;"%(somme_aire_parc["%s"%(parcelle_id)]["%s"%(i[:-4])]))
+                        recap_parc.write("%f;"%(somme_aire_parc["%s"%(parcelle_id)][nom_couche_extrait]))
                 else:
                     recap_parc.write(";")
         recap_parc.write("\n")
@@ -794,14 +796,14 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
     couche_parcelle= None
     #Remplacement "." par ","
 
-    with open(path_resultats +"\\Recap.csv","r") as file :
+    with open(os.path.join(path_resultats, "Recap.csv"),"r") as file :
       filedata = file.read()
-    with open(path_resultats +"\\Recap.csv","w",encoding="ANSI") as file:
+    with open(os.path.join(path_resultats, "Recap.csv"),"w",encoding="latin1") as file:
       file.write(filedata.replace(".",","))
       
-    with open(path_resultats +"\\Recap_parcelle.csv","r") as file :
+    with open(os.path.join(path_resultats, "Recap_parcelle.csv"),"r") as file :
       filedata = file.read()
-    with open(path_resultats +"\\Recap_parcelle.csv","w",encoding="ANSI") as file:
+    with open(os.path.join(path_resultats, "Recap_parcelle.csv"),"w",encoding="latin1") as file:
       file.write(filedata.replace(".",","))
 
 if __name__=="__main__":

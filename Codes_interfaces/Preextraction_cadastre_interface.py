@@ -76,11 +76,6 @@ class ParametresDialog(QDialog):
         layout.addWidget(self.dossier_resultats_edit)
         layout.addWidget(self.dossier_resultats_button)
         
-        self.epsg_label = QLabel("EPSG (Rentrez le code du système de coordonnées souhaité (si inconnu, le chercher sur Google)): ")
-        self.epsg_edit = QLineEdit()
-        layout.addWidget(self.epsg_label)
-        layout.addWidget(self.epsg_edit)
-        
         self.centre_site_label = QLabel("Coordonnées du centre du site (longitude, latitude ) : ")
         self.link_label = QLabel('<a href="https://app.dogeo.fr/Projection/#/point-to-coords">Cliquez ici pour trouver les coordonnées du site souhaité</a>')
         self.link_label.setOpenExternalLinks(True)
@@ -91,7 +86,12 @@ class ParametresDialog(QDialog):
         layout.addWidget(self.link_label)
         layout.addWidget(self.centre_site_edit)
         
-        self.rayon_ajoute_label = QLabel("Rayon Ajouté : ")
+        self.epsg_label = QLabel("EPSG (Rentrez le code du système de coordonnées souhaité (si inconnu, le chercher sur Google)): ")
+        self.epsg_edit = QLineEdit()
+        layout.addWidget(self.epsg_label)
+        layout.addWidget(self.epsg_edit)
+        
+        self.rayon_ajoute_label = QLabel("Rayon Ajouté (en m) : ")
         self.rayon_ajoute_edit = QLineEdit()
         layout.addWidget(self.rayon_ajoute_label)
         layout.addWidget(self.rayon_ajoute_edit)
@@ -227,7 +227,11 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
                          centre_site[1]-180.*rayon_ajoute/(np.pi*rayon_terre),
                          centre_site[0]+(180.*rayon_ajoute/np.pi)/(rayon_terre*np.cos(centre_site[1]*np.pi/180.)),
                          centre_site[1]+180*rayon_ajoute/(np.pi*rayon_terre)]
-
+    else:
+        extended_clipBbox = [centre_site[0]-rayon_ajoute,
+                         centre_site[1]-rayon_ajoute,
+                         centre_site[0]+rayon_ajoute,
+                         centre_site[1]+rayon_ajoute]
 
 
     #Creation du polygone étendu

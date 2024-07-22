@@ -4,20 +4,6 @@ Created on Wed Apr 27 11:23:35 2022
 
 @author: Sami
 """
-
-
-#==============================================================================
-# Installation du module BeautifulSoup4 : NE PAS TOUCHER
-#==============================================================================
-from ..install_packages.check_dependencies import check
-
-API_EXIST = False
-try:
-    check(['bs4'])
-    from bs4 import BeautifulSoup
-finally:
-    API_EXIST = True
-
 #==============================================================================
 # Modules à importer : NE PAS TOUCHER
 #==============================================================================
@@ -32,6 +18,7 @@ import requests, zipfile, io
 import shutil
 import numpy as np
 import re
+from ..Outils import extractionUrlCategories, extractionDonneesCategories
 
 #==============================================================================
 # Paramètres du script
@@ -89,11 +76,6 @@ class ParametresDialog(QDialog):
         layout.addWidget(self.dossier_resultats_edit)
         layout.addWidget(self.dossier_resultats_button)
         
-        self.epsg_label = QLabel("EPSG (Rentrez le code du système de coordonnées souhaité (si inconnu, le chercher sur Google)) : ")
-        self.epsg_edit = QLineEdit()
-        layout.addWidget(self.epsg_label)
-        layout.addWidget(self.epsg_edit)
-        
         self.centre_site_label = QLabel("""Coordonnées du centre du site (longitude, latitude) : """)
         self.link_label = QLabel('<a href="https://app.dogeo.fr/Projection/#/point-to-coords">Cliquez ici pour trouver les coordonnées du site souhaité</a>')
         self.link_label.setOpenExternalLinks(True)
@@ -103,8 +85,13 @@ class ParametresDialog(QDialog):
         layout.addWidget(self.centre_site_label)
         layout.addWidget(self.link_label)
         layout.addWidget(self.centre_site_edit)
+
+        self.epsg_label = QLabel("EPSG (Rentrez le code du système de coordonnées souhaité (si inconnu, le chercher sur Google)) : ")
+        self.epsg_edit = QLineEdit()
+        layout.addWidget(self.epsg_label)
+        layout.addWidget(self.epsg_edit)
         
-        self.rayon_ajoute_label = QLabel("Rayon ajouté : ")
+        self.rayon_ajoute_label = QLabel("Rayon ajouté (en m): ")
         self.rayon_ajoute_edit = QLineEdit()
         layout.addWidget(self.rayon_ajoute_label)
         layout.addWidget(self.rayon_ajoute_edit)
@@ -296,92 +283,6 @@ class MyDialog(QDialog):
         self.bar.pushMessage("Attention",self.message, level=Qgis.Critical)
         self.edit.setText(self.message)
 
-
-
-def extractionUrlCategories():
-    """
-    Cette fonction extrait les différents types de données que l'on peut trouver
-    sur le site geoservices. Elle a été conçue en fonction de la structure actuelle
-    du site web et peut nécessiter des ajustements en cas de modifications.
-    """
-    url = "https://geoservices.ign.fr/services-web-experts"
-    response = requests.get(url)
-    extraction_list = {}
-    
-    if response.status_code != 200:
-        print("La requête a échoué. Statut de la réponse :", response.status_code)
-        return extraction_list
-    if API_EXIST:
-        soup = BeautifulSoup(response.content, "html.parser")
-        extraction_section = soup.find("div", {"class": "field--items"})
-    else: 
-        print("Erreur dans l'import du module bs4")
-        return 
-    # Trouver la section des différentes extractions
-    
-    
-    if not extraction_section:
-        print("Section des types d'extraction introuvable sur la page.")
-        return extraction_list
-    
-    extractions = extraction_section.find_all("strong")
-    
-    if not extractions:
-        print("Aucun type d'extraction trouvé sur la page.")
-        return extraction_list
-    
-    for extraction_name in extractions:
-        extraction_name_text = extraction_name.text.rstrip(".")
-        donnees_list = extractionDonneesCategories(extraction_name_text)
-        if donnees_list:
-            extraction_list[extraction_name_text] = donnees_list
-    
-    return extraction_list
-    
-def extractionDonneesCategories(nom_categorie):
-    """
-    Cette fonction permet d'extraire les différentes données disponibles pour
-    une catégorie donnée du site geoservices. Elle a été conçue en fonction de
-    la structure actuelle du site web et peut nécessiter des ajustements en cas
-    de modifications.
-    """
-    url = "https://geoservices.ign.fr/services-web-experts" + "-" + nom_categorie
-    response = requests.get(url)
-    donnees_list = {}
-    
-    if response.status_code == 200:
-        if API_EXIST:
-            soup = BeautifulSoup(response.content, "html.parser")
-            field_items = soup.find_all("div", {"class": "field--item"})
-        else:
-            print("Erreur dans l'import du module bs4")
-            return 
-        for field_item in field_items:
-            if "WFS" in field_item.text:
-                tbody = field_item.find_next("tbody")
-                if tbody:
-                    tr_items = tbody.find_all("tr")
-                    if tr_items:
-                        for tr in tr_items:
-                            nom_donnees = tr.find("td")
-                            if nom_donnees:
-                                nom_technique = nom_donnees.find_next("td")
-                                donnees_list[nom_donnees.text.strip()] = nom_technique.text.strip()
-                        return donnees_list
-                    else:
-                        print(f"Pas de données disponibles pour {nom_categorie.capitalize()}.")
-                        return
-                else:
-                    print(f"Pas de données disponibles pour {nom_categorie.capitalize()}.")
-                    return
-        if not donnees_list: 
-            print(f"Pas de données WFS disponibles pour {nom_categorie.capitalize()}.")
-            return 
-    else:
-        print(f"La requête a échoué. Impossible d'accéder aux informations {nom_categorie.capitalize()}.")
-        return
- 
-
 #==============================================================================
 # Corps du script
 #==============================================================================
@@ -532,8 +433,11 @@ Veuillez réessayer en inscrivant correctement toutes les variables.""")
                     ",epsg:%s"%(EPSG)+"&outputFormat=shape-zip"
             print(uri)
             request = requests.get(uri)
-            zip = zipfile.ZipFile(io.BytesIO(request.content))
-            zip.extractall(path_resultats)
+            try: 
+                zip = zipfile.ZipFile(io.BytesIO(request.content))
+                zip.extractall(path_resultats)
+            except Exception as e:
+                print(f"Erreur dans l'extraction de la couche {couche} : {e}")
 
 if __name__=="__main__":
     ExtractionCouches()

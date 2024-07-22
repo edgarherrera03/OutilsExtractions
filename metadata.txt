@@ -6,7 +6,7 @@
 name=OutilsExtractionsLollier
 qgisMinimumVersion=3.0
 description=Ce plugin vous permet d'exécuter des outils d'extraction conçus pour QGIS.
-version=0.1
+version=1.2
 author=Edgar HERRERA SANSIVIRINI / Lollier Ingénierie
 email=herreraedgar117@gmail.com
 
